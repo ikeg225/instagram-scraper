@@ -59,10 +59,34 @@ searchbox.send_keys(Keys.ENTER)
 
 # Scroll
 scrolldown = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var scrolldown=document.body.scrollHeight;return scrolldown;")
-match=False
-while(match==False):
-    last_count = scrolldown
+scroll = 0
+while(scroll < 0):
     time.sleep(3)
     scrolldown = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var scrolldown=document.body.scrollHeight;return scrolldown;")
-    if last_count==scrolldown:
-        match=True
+    scroll += 1
+
+#posts
+time.sleep(3)
+posts = []
+links = driver.find_elements_by_tag_name('a')
+for link in links:
+    post = link.get_attribute('href')
+    if '/p/' in post:
+      posts.append(post)
+
+print(posts)
+
+# Hover and Collect Likes/Views and Comments For Each Post
+time.sleep(3)
+stats = []
+classes = driver.find_elements_by_class_name('_9AhH0')
+action = ActionChains(driver)
+i = 0
+
+while i < len(classes):
+    action.move_to_element(classes[i])
+    time.sleep(1)
+    for details in driver.find_elements_by_class_name("-V_eO"):
+        print("hi")
+    i += 1
+a.preform()
