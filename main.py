@@ -3,10 +3,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import ActionChains
 import time
+import csv
 
 # Global Variables
-post_limit = 10
-username = "throwbackhoops"
+post_limit = 50
+ig_username = "throwbackhoops"
 
 accounts = ["throwbackhoops",
 "hoopsdirect",
@@ -55,7 +56,7 @@ login = driver.find_element_by_css_selector("button[type='submit']").click()
 time.sleep(5)
 searchbox = driver.find_element_by_css_selector("input[placeholder='Search']")
 searchbox.clear()
-searchbox.send_keys(username)
+searchbox.send_keys(ig_username)
 time.sleep(5)
 searchbox.send_keys(Keys.ENTER)
 time.sleep(5)
@@ -64,10 +65,13 @@ searchbox.send_keys(Keys.ENTER)
 # Scroll
 scrolldown = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var scrolldown=document.body.scrollHeight;return scrolldown;")
 scroll = 0
-while(scroll < 0):
+scroll_limit = round(((post_limit - 12) / 12) + 0.5)
+while(scroll < scroll_limit):
     time.sleep(3)
     scrolldown = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var scrolldown=document.body.scrollHeight;return scrolldown;")
     scroll += 1
+
+print("Finished Loading Posts")
 
 #posts
 time.sleep(3)
@@ -82,16 +86,17 @@ while count < len(links) and post_count < post_limit:
         post_count += 1
     count += 1
 
-print(posts)
+print("Collected All Post URLs")
 
 # Hover and Collect Likes/Views and Comments For Each Post
 time.sleep(3)
 stats = []
-classes = driver.find_elements_by_class_name('_9AhH0')
+classes = driver.find_elements_by_class_name('KL4Bh')
 post_count = 0
+count = 0
 
-while post_count < len(classes) and post_count < post_limit:
-    ActionChains(driver).move_to_element(classes[post_count]).perform()
+while post_count < post_limit:
+    ActionChains(driver).move_to_element(classes[count]).perform()
     time.sleep(0.25)
     values = []
 
@@ -115,8 +120,29 @@ while post_count < len(classes) and post_count < post_limit:
             values.extend([text, "views"])
         else:
             values.extend([text, "unknown"])
-        
+    if len(values) != 4:
+        values.extend([0, "no comments"])
     stats.append(values)
     post_count += 1
+    count += 1
+    if post_count % 25 == 0:
+        print("Finished: " + str(post_count))
 
-print(stats)
+
+print("Found Data For All Posts")
+
+# Adds Two Lists Into One
+index = 0
+all_data = []
+while index < len(posts):
+    next_data = stats[index]
+    next_data.insert(0, posts[index])
+    all_data.append(next_data)
+    index += 1
+
+all_data.insert(0, ["Post URL", "Count", "Likes or Views", "Comment Number", "Type"])
+with open(ig_username + ".csv","w+") as my_csv:
+    csvWriter = csv.writer(my_csv,delimiter=',')
+    csvWriter.writerows(all_data)
+
+print("Finished!")
