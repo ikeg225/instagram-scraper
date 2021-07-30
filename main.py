@@ -6,7 +6,7 @@ import time
 import csv
 
 # Global Variables
-post_limit = 50
+post_limit = 100
 ig_username = "throwbackhoops"
 
 accounts = ["throwbackhoops",
@@ -87,16 +87,19 @@ while count < len(links) and post_count < post_limit:
     count += 1
 
 print("Collected All Post URLs")
+print(posts)
+
+element = driver.find_element_by_class_name("nZSzR")
+driver.execute_script("return arguments[0].scrollIntoView(true);", element)
 
 # Hover and Collect Likes/Views and Comments For Each Post
 time.sleep(3)
 stats = []
-classes = driver.find_elements_by_class_name('KL4Bh')
 post_count = 0
 count = 0
 
 while post_count < post_limit:
-    ActionChains(driver).move_to_element(classes[count]).perform()
+    ActionChains(driver).move_to_element(driver.find_elements_by_class_name('KL4Bh')[count]).perform()
     time.sleep(0.25)
     values = []
 
